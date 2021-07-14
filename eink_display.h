@@ -33,6 +33,7 @@ public:
 
     void writeBuffer(unsigned char* buffer, bool black);
     void writePartial(unsigned char* buffer, int bufX, int bufY, int bufWidth, int bufHeight, bool black);
+    void apply();
 
     void clear();
 
