@@ -4,6 +4,8 @@
 #include <Arduino.h>
 #include <unordered_map>
 
+#include "image.h"
+
 struct FontInfo {
     uint16_t fontSize;
     uint8_t bitField;
@@ -54,13 +56,20 @@ class Font {
     // Though the descriptor defines id as a 32-bit integer, we will only use characters 0-127.
     std::unordered_map<char, FontChar> characters;
 
+    const Image fontImage;
+
 public:
     /**
      * Creates a font class with the specified data.
      * 
      * Variables containing data must be stored on PROGMEM.
      */
-    Font(const void *image, const unsigned char *descriptor);
+    Font(Image image, const unsigned char *descriptor);
+
+    FontChar getCharacter(char ch);
+    Pixel getPixel(int x, int y);
+
+    // Font &operator=(const Font &other);
 
 private:
     int parseBlock(const unsigned char *descriptor, int offset, int expectedBlock = -1);

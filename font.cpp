@@ -2,7 +2,7 @@
 
 #include <pgmspace.h>
 
-Font::Font(const void *image, const unsigned char *descriptor) {
+Font::Font(Image image, const unsigned char *descriptor) : fontImage(image) {
     if (!verifyDescriptorSignature(descriptor)) {
         Serial.println("Error: invalid font descriptor file");
         return;
@@ -49,6 +49,19 @@ int Font::parseBlock(const unsigned char *descriptor, int offset, int expectedBl
 
     return offset + 5 + size;
 }
+
+FontChar Font::getCharacter(char ch) {
+    return characters[ch];
+}
+
+Pixel Font::getPixel(int x, int y) {
+    return fontImage.pixelAt(x, y);
+}
+
+// Font &Font::operator=(const Font &other) {
+//     if (this == &other) return *this;
+    
+// }
 
 void Font::parseBlock1(const unsigned char *descriptor, int offset, int size) {
     FontInfo info;

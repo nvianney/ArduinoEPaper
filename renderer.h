@@ -4,6 +4,8 @@
 #include "eink_display.h"
 #include "binary_matrix.h"
 
+#include "font.h"
+
 enum DisplayColor {
     BLACK, RED
 };
@@ -17,6 +19,8 @@ class Renderer {
     DisplayColor color = DisplayColor::BLACK;
     int borderWidth = 1;
 
+    Font *font;
+
     // Bounds of rendering
     int _minX;
     int _minY;
@@ -29,6 +33,9 @@ public:
 
     void drawRect(int x, int y, int width, int height);
     void fillRect(int x, int y, int width, int height);
+
+    void drawText(int x, int y, const char *text);
+    void setFont(Font &font);
 
     void setColor(DisplayColor color);
 

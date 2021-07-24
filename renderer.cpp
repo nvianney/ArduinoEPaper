@@ -1,5 +1,6 @@
 #include "renderer.h"
 
+
 Renderer::Renderer(int width, int height) :
     redData(BinaryMatrix(width, height)),
     blackData(BinaryMatrix(width, height)),
@@ -24,6 +25,52 @@ void Renderer::fillRect(int x, int y, int width, int height) {
     updateBounds(x, y, x + width, y + height);
 
     data().setRect(x, y, width, height, 1);
+}
+
+void Renderer::drawText(int x, int y, const char *text) {
+    if (font == nullptr) {
+        Serial.println("Error: font not set");
+        return;
+    }
+
+    int textX = x;
+    int maxHeight = 0;
+
+    int len = String(text).length();
+    for (int i = 0; i < len; i++) {
+        FontChar c = font->getCharacter(text[i]);
+        maxHeight = max((int) c.height + c.yoffset, maxHeight);
+
+        for (int oy = 0; oy < c.height; oy++) {
+            for (int ox = 0; ox < c.width; ox++) {
+                Pixel p = font->getPixel(c.x + ox, c.y + oy);
+                bool active = p.b > 0;
+
+                // Serial.print("(");
+                // Serial.print(c.x + ox);
+                // Serial.print(",");
+                // Serial.print(c.y + oy);
+                // Serial.print(")");
+                // Serial.print(" | ");
+                // Serial.print(p.r);
+                // Serial.print(p.g);
+                // Serial.println(p.b);
+
+                int outputX = textX + ox;
+                int outputY = y + oy;
+
+                data().setPixel(outputX + c.xoffset, outputY + c.yoffset, active);
+            }
+        }
+
+        textX += c.xadvance;
+    }
+
+    updateBounds(x, y, textX, y + maxHeight);
+}
+
+void Renderer::setFont(Font &font) {
+    this->font = &font;
 }
 
 void Renderer::setColor(DisplayColor color) {
