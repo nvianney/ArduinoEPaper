@@ -3,6 +3,7 @@
 
 #include "eink_display.h"
 #include "binary_matrix.h"
+#include "image.h"
 
 #include "font.h"
 
@@ -33,6 +34,8 @@ public:
 
     void drawRect(int x, int y, int width, int height);
     void fillRect(int x, int y, int width, int height);
+
+    void drawImage(Image &image, int x, int y);
 
     void drawText(int x, int y, const char *text);
     void setFont(Font &font);

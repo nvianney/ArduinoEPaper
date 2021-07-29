@@ -10,6 +10,9 @@ BinaryMatrix::~BinaryMatrix() {
 }
 
 void BinaryMatrix::setPixel(uint16_t x, uint16_t y, bool value) {
+    if (x >= width) return;
+    if (y >= height) return;
+
     uint8_t &b = buffer[loc(x, y)];
     uint8_t offset = x % 8;
     uint8_t mask = ~(0x80 >> offset); // take all bits except the one containing the pixel

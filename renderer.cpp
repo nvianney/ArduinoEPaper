@@ -27,6 +27,17 @@ void Renderer::fillRect(int x, int y, int width, int height) {
     data().setRect(x, y, width, height, 1);
 }
 
+void Renderer::drawImage(Image &image, int x, int y) {
+    for (int r = 0; r < image.height; r++) {
+        for (int c = 0; c < image.width; c++) {
+            Pixel p = image.pixelAt(c, r);
+            data().setPixel(x + c, y + r, p.b > 0);
+        }
+    }
+
+    updateBounds(x, y, x + image.width, x + image.height);
+}
+
 void Renderer::drawText(int x, int y, const char *text) {
     if (font == nullptr) {
         Serial.println("Error: font not set");
