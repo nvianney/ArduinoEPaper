@@ -38,13 +38,27 @@ void Renderer::drawImage(Image &image, int x, int y) {
     updateBounds(x, y, x + image.width, x + image.height);
 }
 
-void Renderer::drawText(int x, int y, const char *text) {
+void Renderer::drawText(int x, int y, const char *text, TextAlignment align) {
     if (font == nullptr) {
         Serial.println("Error: font not set");
         return;
     }
 
-    int textX = x;
+    int startX;
+
+    switch(align) {
+        case TextAlignment::LEFT:
+            startX = x;
+            break;
+        case TextAlignment::CENTER:
+            startX = x - font->computeWidth(text)/2;
+            break;
+        case TextAlignment::RIGHT:
+            startX = x - font->computeWidth(text);
+            break;
+    }
+
+    int textX = startX;
     int maxHeight = 0;
 
     int len = String(text).length();
@@ -67,7 +81,7 @@ void Renderer::drawText(int x, int y, const char *text) {
         textX += c.xadvance;
     }
 
-    updateBounds(x, y, textX, y + maxHeight);
+    updateBounds(startX, y, textX, y + maxHeight);
 }
 
 void Renderer::setFont(Font &font) {

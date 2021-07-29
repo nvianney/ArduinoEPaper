@@ -49,7 +49,7 @@ struct FontChar {
 };
 
 class Font {
-
+    
     FontInfo fontInfo;
     FontCommon fontCommon;
 
@@ -69,19 +69,23 @@ public:
 
     void setScale(float scale);
 
-    FontChar getCharacter(char ch);
-    Pixel getPixel(int x, int y);
+    FontChar getCharacter(char ch) const;
+    Pixel getPixel(int x, int y) const;
 
     // Font &operator=(const Font &other);
 
+    int computeWidth(const char *text) const;
+
 private:
+
+    // Loading the font descriptor
+
     int parseBlock(const unsigned char *descriptor, int offset, int expectedBlock = -1);
     void parseBlock1(const unsigned char *descriptor, int offset, int size);
     void parseBlock2(const unsigned char *descriptor, int offset, int size);
     void parseBlock3(const unsigned char *descriptor, int offset, int size);
     void parseBlock4(const unsigned char *descriptor, int offset, int size);
     void parseBlock5(const unsigned char *descriptor, int offset, int size);
-
     bool verifyDescriptorSignature(const unsigned char *descriptor);
 };
 

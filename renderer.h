@@ -11,6 +11,10 @@ enum DisplayColor {
     BLACK, RED
 };
 
+enum TextAlignment {
+    LEFT, CENTER, RIGHT
+};
+
 class Renderer {
 
     BinaryMatrix redData;
@@ -37,7 +41,7 @@ public:
 
     void drawImage(Image &image, int x, int y);
 
-    void drawText(int x, int y, const char *text);
+    void drawText(int x, int y, const char *text, TextAlignment align = TextAlignment::LEFT);
     void setFont(Font &font);
 
     void setColor(DisplayColor color);

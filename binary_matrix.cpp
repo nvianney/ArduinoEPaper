@@ -10,8 +10,8 @@ BinaryMatrix::~BinaryMatrix() {
 }
 
 void BinaryMatrix::setPixel(uint16_t x, uint16_t y, bool value) {
-    if (x >= width) return;
-    if (y >= height) return;
+    if (x < 0 || x >= width) return;
+    if (y < 0 || y >= height) return;
 
     uint8_t &b = buffer[loc(x, y)];
     uint8_t offset = x % 8;

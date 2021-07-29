@@ -20,11 +20,11 @@ void Font::setScale(float scale) {
     fontImage.setScale(scale);
 }
 
-FontChar Font::getCharacter(char ch) {
-    if (this->scale == 1.0f) return characters[ch];
+FontChar Font::getCharacter(char ch) const {
+    if (this->scale == 1.0f) return characters.at(ch);
 
     // We have to manipulate the character with the new scaling
-    FontChar fc = characters[ch];
+    FontChar fc = characters.at(ch);
     fc.x *= scale;
     fc.y *= scale;
     fc.width *= scale;
@@ -36,8 +36,20 @@ FontChar Font::getCharacter(char ch) {
     return fc;
 }
 
-Pixel Font::getPixel(int x, int y) {
+Pixel Font::getPixel(int x, int y) const {
     return fontImage.pixelAt(x, y);
+}
+
+int Font::computeWidth(const char *text) const {
+    int width = 0;
+
+    String str = String(text);
+    for (int i = 0; i < str.length(); i++) {
+        FontChar fc = characters.at(text[i]);
+        width += fc.xadvance * scale;
+    }
+
+    return width;
 }
 
 int Font::parseBlock(const unsigned char *descriptor, int offset, int expectedBlock) {
