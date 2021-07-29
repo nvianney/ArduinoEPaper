@@ -27,6 +27,47 @@ void Renderer::fillRect(int x, int y, int width, int height) {
     data().setRect(x, y, width, height, 1);
 }
 
+void Renderer::fillCircle(int centerX, int centerY, int radius) {
+    for (int y = centerY - radius; y <= centerY + radius; y++) {
+        for (int x = centerX - radius; x <= centerX + radius; x++) {
+            float cx = x - centerX;
+            float cy = y - centerY;
+            if (cx * cx + cy * cy <= radius * radius) {
+                data().setPixel(x, y, 1);
+            }
+        }
+    }
+
+    updateBounds(centerX - radius, centerY - radius, centerX + radius, centerY + radius);
+}
+
+void Renderer::drawLine(int x1, int y1, int x2, int y2) {
+    // Find equation for y
+    float m = ((float) (y2 - y1)) / ((float) (x2 - x1));
+
+    // We'll draw on multiple axes to prevent blank spots on a line due to steep slope
+
+    // Draw by giving input x
+    int startX = min(x1, x2);
+    int endX = max(x1, x2);
+    for (int x = startX; x <= endX; x++) {
+        int y = m * (x - x1) + y1;
+
+        data().setPixel(x, y, 1);
+    }
+
+    // Draw by giving input y
+    int startY = min(y1, y2);
+    int endY = max(y1, y2);
+    for (int y = startY; y <= endY; y++) {
+        int x = (float) (y - y1) / m + x1;
+
+        data().setPixel(x, y, 1);
+    }
+
+    updateBounds(x1, y1, x2, y2);
+}
+
 void Renderer::drawImage(Image &image, int x, int y) {
     for (int r = 0; r < image.height; r++) {
         for (int c = 0; c < image.width; c++) {

@@ -39,6 +39,10 @@ public:
     void drawRect(int x, int y, int width, int height);
     void fillRect(int x, int y, int width, int height);
 
+    void fillCircle(int centerX, int centerY, int radius);
+
+    void drawLine(int x1, int y1, int x2, int y2);
+
     void drawImage(Image &image, int x, int y);
 
     void drawText(int x, int y, const char *text, TextAlignment align = TextAlignment::LEFT);
