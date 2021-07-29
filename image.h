@@ -35,6 +35,11 @@ struct Pixel {
 };
 
 struct Image {
+private:
+    float scale = 1.0f;
+
+public:
+
     const unsigned int width;
     const unsigned int height;
     const unsigned int bytes_per_pixel; /* 2: RGB16, 3: RGB, 4: RGBA */
@@ -44,6 +49,7 @@ struct Image {
 
     Image(unsigned int w, unsigned int h, unsigned int bpp, unsigned char *data);
 
+    void setScale(float scale);
     Pixel pixelAt(int x, int y) const;
 };
 

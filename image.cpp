@@ -19,12 +19,25 @@ Image Image::asImage(const void *imageStruct) {
 Image::Image(unsigned int w, unsigned int h, unsigned int bpp, unsigned char *data) : 
     width(w), height(h), bytes_per_pixel(bpp), pixel_data(data) { }
 
+// The scaling is done by mapping the pixel coordinates (x, y) -> (original x, original y), where (x, y)
+// are coordinates from (0, 0) to (original width * scale, original height * scale).
+// It is up to the method that retrieves the pixel to determine this.
+void Image::setScale(float scale) {
+    this->scale = scale;
+}
+
 Pixel Image::pixelAt(int x, int y) const {
-    int offset = (width * y * bytes_per_pixel) + (x * bytes_per_pixel);
+    int offset;
+    if (scale == 1.0f) {
+        offset = (width * y * bytes_per_pixel) + (x * bytes_per_pixel);
+    } else {
+        int imgX = (float) x / scale;
+        int imgY = (float) y / scale;
+        offset = (width * imgY * bytes_per_pixel) + (imgX * bytes_per_pixel);
+    }
 
     if (bytes_per_pixel == 2) {
         uint16_t color = derefByte<uint16_t>(pixel_data, offset);
-        //uint16_t color = pgm_read_word(pixel_data + offset);
         Pixel pixel(
             (color >> 11) & 0x1F,
             (color >> 5) & 0x3F,

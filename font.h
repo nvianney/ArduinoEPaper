@@ -56,7 +56,8 @@ class Font {
     // Though the descriptor defines id as a 32-bit integer, we will only use characters 0-127.
     std::unordered_map<char, FontChar> characters;
 
-    const Image fontImage;
+    Image fontImage;
+    float scale = 1.0f;
 
 public:
     /**
@@ -65,6 +66,8 @@ public:
      * Variables containing data must be stored on PROGMEM.
      */
     Font(Image image, const unsigned char *descriptor);
+
+    void setScale(float scale);
 
     FontChar getCharacter(char ch);
     Pixel getPixel(int x, int y);

@@ -15,6 +15,31 @@ Font::Font(Image image, const unsigned char *descriptor) : fontImage(image) {
     offset = parseBlock(descriptor, offset, 4);
 }
 
+void Font::setScale(float scale) {
+    this->scale = scale;
+    fontImage.setScale(scale);
+}
+
+FontChar Font::getCharacter(char ch) {
+    if (this->scale == 1.0f) return characters[ch];
+
+    // We have to manipulate the character with the new scaling
+    FontChar fc = characters[ch];
+    fc.x *= scale;
+    fc.y *= scale;
+    fc.width *= scale;
+    fc.height *= scale;
+    fc.xoffset *= scale;
+    fc.yoffset *= scale;
+    fc.xadvance *= scale;
+
+    return fc;
+}
+
+Pixel Font::getPixel(int x, int y) {
+    return fontImage.pixelAt(x, y);
+}
+
 int Font::parseBlock(const unsigned char *descriptor, int offset, int expectedBlock) {
     byte type = pgm_read_byte(descriptor + offset + 0);
     int size = pgm_read_dword(descriptor + offset + 1);
@@ -49,19 +74,6 @@ int Font::parseBlock(const unsigned char *descriptor, int offset, int expectedBl
 
     return offset + 5 + size;
 }
-
-FontChar Font::getCharacter(char ch) {
-    return characters[ch];
-}
-
-Pixel Font::getPixel(int x, int y) {
-    return fontImage.pixelAt(x, y);
-}
-
-// Font &Font::operator=(const Font &other) {
-//     if (this == &other) return *this;
-    
-// }
 
 void Font::parseBlock1(const unsigned char *descriptor, int offset, int size) {
     FontInfo info;

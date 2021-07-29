@@ -46,16 +46,6 @@ void Renderer::drawText(int x, int y, const char *text) {
                 Pixel p = font->getPixel(c.x + ox, c.y + oy);
                 bool active = p.b > 0;
 
-                // Serial.print("(");
-                // Serial.print(c.x + ox);
-                // Serial.print(",");
-                // Serial.print(c.y + oy);
-                // Serial.print(")");
-                // Serial.print(" | ");
-                // Serial.print(p.r);
-                // Serial.print(p.g);
-                // Serial.println(p.b);
-
                 int outputX = textX + ox;
                 int outputY = y + oy;
 

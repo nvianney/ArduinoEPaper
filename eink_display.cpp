@@ -133,9 +133,6 @@ void EInkDisplay::writePartial(unsigned char* buffer, int bufX, int bufY, int bu
     const int lowerByteX = bufX >> 3; // round down to nearest byte
     const int upperByteX = (bufX + bufWidth + 8 - 1) >> 3; // basically ceil((bufX+bufWidth) / 8)
 
-    Serial.println(lowerByteX);
-    Serial.println(upperByteX);
-
     const int lowerBitX = lowerByteX << 3; // multiply by 8 for address offset (addr offset in bits)
 
 
