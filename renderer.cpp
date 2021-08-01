@@ -27,6 +27,23 @@ void Renderer::fillRect(int x, int y, int width, int height) {
     data().setRect(x, y, width, height, 1);
 }
 
+void Renderer::fillRoundRect(int x, int y, int width, int height, int radius) {
+    int a = (width / 2) - radius;
+    int b = (height / 2) - radius;
+
+    for (int row = y; row <= y + height; row++) {
+        for (int col = x; col <= x + width; col++) {
+            int cx = max(abs(col - (x + width/2)) - a, 0);
+            int cy = max(abs(row - (y + height/2)) - b, 0);
+            if (cx * cx + cy * cy <= radius * radius) {
+                data().setPixel(col, row, 1);
+            }
+        }
+    }
+
+    updateBounds(x, y, x + width * 2, y + height * 2);
+}
+
 void Renderer::fillCircle(int centerX, int centerY, int radius) {
     for (int y = centerY - radius; y <= centerY + radius; y++) {
         for (int x = centerX - radius; x <= centerX + radius; x++) {
@@ -72,7 +89,7 @@ void Renderer::drawImage(Image &image, int x, int y) {
     for (int r = 0; r < image.height; r++) {
         for (int c = 0; c < image.width; c++) {
             Pixel p = image.pixelAt(c, r);
-            data().setPixel(x + c, y + r, p.b > 0);
+            data().setPixel(x + c, y + r, p.b <= 1);
         }
     }
 
@@ -110,7 +127,7 @@ void Renderer::drawText(int x, int y, const char *text, TextAlignment align) {
         for (int oy = 0; oy < c.height; oy++) {
             for (int ox = 0; ox < c.width; ox++) {
                 Pixel p = font->getPixel(c.x + ox, c.y + oy);
-                bool active = p.b > 0;
+                bool active = p.b <= 1;
 
                 int outputX = textX + ox;
                 int outputY = y + oy;

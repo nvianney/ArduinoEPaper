@@ -39,6 +39,9 @@ public:
     void drawRect(int x, int y, int width, int height);
     void fillRect(int x, int y, int width, int height);
 
+    // https://benice-equation.blogspot.com/2016/10/equation-of-rounded-rectangle.html
+    void fillRoundRect(int x, int y, int width, int height, int radius);
+
     void fillCircle(int centerX, int centerY, int radius);
 
     void drawLine(int x1, int y1, int x2, int y2);
