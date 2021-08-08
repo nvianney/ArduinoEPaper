@@ -124,6 +124,13 @@ void Renderer::drawText(int x, int y, const char *text, TextAlignment align) {
         FontChar c = font->getCharacter(text[i]);
         maxHeight = max((int) c.height + c.yoffset, maxHeight);
 
+        // Apply kerning
+        int kerning = 0;
+        if (i >= 1) {
+            kerning = font->getKerning(text[i-1], text[i]);
+        }
+        textX += kerning;
+
         for (int oy = 0; oy < c.height; oy++) {
             for (int ox = 0; ox < c.width; ox++) {
                 Pixel p = font->getPixel(c.x + ox, c.y + oy);

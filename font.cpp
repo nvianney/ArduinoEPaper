@@ -13,6 +13,7 @@ Font::Font(Image image, const unsigned char *descriptor) : fontImage(image) {
     offset = parseBlock(descriptor, offset, 2);
     offset = parseBlock(descriptor, offset, 3);
     offset = parseBlock(descriptor, offset, 4);
+    offset = parseBlock(descriptor, offset, 5);
 }
 
 void Font::setScale(float scale) {
@@ -39,6 +40,14 @@ FontChar Font::getCharacter(char ch) const {
     fc.xadvance *= scale;
 
     return fc;
+}
+
+int16_t Font::getKerning(char first, char second) const {
+    if (kerning.find( (IntPair) {first, second} ) == kerning.end()) {
+        return 0;
+    }
+
+    return kerning.at( (IntPair) {first, second} );
 }
 
 Pixel Font::getPixel(int x, int y) const {
@@ -151,12 +160,21 @@ void Font::parseBlock4(const unsigned char *descriptor, int offset, int size) {
         ch.page =       pgm_read_byte(descriptor + offset + 18 + c * 20);
         ch.chnl =       pgm_read_byte(descriptor + offset + 19 + c * 20);
 
-        characters[(char) ch.id] = ch;
+        characters[ch.id] = ch;
     }
 
 }
 
 void Font::parseBlock5(const unsigned char *descriptor, int offset, int size) {
+    int chars = size / 10;
+
+    for (int c = 0; c < chars; c++) {
+        uint32_t first =    pgm_read_dword(descriptor + offset + 0 + c * 10);
+        uint32_t second =   pgm_read_dword(descriptor + offset + 4 + c * 10);
+        int16_t amount =   pgm_read_word(descriptor + offset + 8 + c * 10);
+
+        kerning[ {first, second} ] = amount;
+    }
 }
 
 bool Font::verifyDescriptorSignature(const unsigned char *descriptor) {
