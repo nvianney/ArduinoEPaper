@@ -21,6 +21,11 @@ void Font::setScale(float scale) {
 }
 
 FontChar Font::getCharacter(char ch) const {
+    if (characters.find(ch) == characters.end()) {
+        Serial.println("Character not found: " + ch);
+        return FontChar();
+    }
+
     if (this->scale == 1.0f) return characters.at(ch);
 
     // We have to manipulate the character with the new scaling
@@ -45,8 +50,8 @@ int Font::computeWidth(const char *text) const {
 
     String str = String(text);
     for (int i = 0; i < str.length(); i++) {
-        FontChar fc = characters.at(text[i]);
-        width += fc.xadvance * scale;
+        FontChar fc = getCharacter(text[i]);
+        width += fc.xadvance;
     }
 
     return width;

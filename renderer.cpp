@@ -14,25 +14,34 @@ Renderer::Renderer(int width, int height) :
 void Renderer::drawRect(int x, int y, int width, int height) {
     updateBounds(x, y, x + width, y + height);
 
-    data().setRect(x, y, width, borderWidth, true);                         // top border
-    data().setRect(x, y + height - borderWidth, width, borderWidth, true);  // bottom border
+    data().setRect(x, y, width, borderWidth, pixelValue);                         // top border
+    data().setRect(x, y + height - borderWidth, width, borderWidth, pixelValue);  // bottom border
 
-    data().setRect(x, y, borderWidth, height, true);                        // left border
-    data().setRect(x + width - borderWidth, y, borderWidth, height, true);  // right border
+    data().setRect(x, y, borderWidth, height, pixelValue);                        // left border
+    data().setRect(x + width - borderWidth, y, borderWidth, height, pixelValue);  // right border
 }
 
 void Renderer::fillRect(int x, int y, int width, int height) {
     updateBounds(x, y, x + width, y + height);
 
-    data().setRect(x, y, width, height, 1);
+    data().setRect(x, y, width, height, pixelValue);
 }
 
 void Renderer::fillRoundRect(int x, int y, int width, int height, int radius) {
-    roundRect(x, y, width, height, radius, 1);
-}
+    int a = (width / 2) - radius;
+    int b = (height / 2) - radius;
 
-void Renderer::clearRoundRect(int x, int y, int width, int height, int radius) {
-    roundRect(x, y, width, height, radius, 0);
+    for (int row = y; row <= y + height; row++) {
+        for (int col = x; col <= x + width; col++) {
+            int cx = max(abs(col - (x + width/2)) - a, 0);
+            int cy = max(abs(row - (y + height/2)) - b, 0);
+            if (cx * cx + cy * cy <= radius * radius) {
+                data().setPixel(col, row, pixelValue);
+            }
+        }
+    }
+
+    updateBounds(x, y, x + width * 2, y + height * 2);;
 }
 
 void Renderer::fillCircle(int centerX, int centerY, int radius) {
@@ -41,7 +50,7 @@ void Renderer::fillCircle(int centerX, int centerY, int radius) {
             float cx = x - centerX;
             float cy = y - centerY;
             if (cx * cx + cy * cy <= radius * radius) {
-                data().setPixel(x, y, 1);
+                data().setPixel(x, y, pixelValue);
             }
         }
     }
@@ -61,7 +70,7 @@ void Renderer::drawLine(int x1, int y1, int x2, int y2) {
     for (int x = startX; x <= endX; x++) {
         int y = m * (x - x1) + y1;
 
-        data().setPixel(x, y, 1);
+        data().setPixel(x, y, pixelValue);
     }
 
     // Draw by giving input y
@@ -70,7 +79,7 @@ void Renderer::drawLine(int x1, int y1, int x2, int y2) {
     for (int y = startY; y <= endY; y++) {
         int x = (float) (y - y1) / m + x1;
 
-        data().setPixel(x, y, 1);
+        data().setPixel(x, y, pixelValue);
     }
 
     updateBounds(x1, y1, x2, y2);
@@ -80,7 +89,7 @@ void Renderer::drawImage(Image &image, int x, int y) {
     for (int r = 0; r < image.height; r++) {
         for (int c = 0; c < image.width; c++) {
             Pixel p = image.pixelAt(c, r);
-            data().setPixel(x + c, y + r, p.b <= 1);
+            data().setPixel(x + c, y + r, (p.b <= 1) & pixelValue);
         }
     }
 
@@ -123,7 +132,9 @@ void Renderer::drawText(int x, int y, const char *text, TextAlignment align) {
                 int outputX = textX + ox;
                 int outputY = y + oy;
 
-                data().setPixel(outputX + c.xoffset, outputY + c.yoffset, active);
+                if (active) {
+                    data().setPixel(outputX + c.xoffset, outputY + c.yoffset, active & pixelValue);
+                }
             }
         }
 
@@ -145,6 +156,14 @@ void Renderer::clearAll() {
     blackData.clear();
     redData.clear();
     display.clear();
+}
+
+void Renderer::setDrawMode() {
+    pixelValue = true;
+}
+
+void Renderer::setClearMode() {
+    pixelValue = false;
 }
 
 void Renderer::render() {
@@ -180,23 +199,6 @@ void Renderer::clearBounds() {
     _maxX = 0;
     _maxY = 0;
 
-}
-
-void Renderer::roundRect(int x, int y, int width, int height, int radius, bool value) {
-    int a = (width / 2) - radius;
-    int b = (height / 2) - radius;
-
-    for (int row = y; row <= y + height; row++) {
-        for (int col = x; col <= x + width; col++) {
-            int cx = max(abs(col - (x + width/2)) - a, 0);
-            int cy = max(abs(row - (y + height/2)) - b, 0);
-            if (cx * cx + cy * cy <= radius * radius) {
-                data().setPixel(col, row, value);
-            }
-        }
-    }
-
-    updateBounds(x, y, x + width * 2, y + height * 2);
 }
 
 BinaryMatrix &Renderer::data() {

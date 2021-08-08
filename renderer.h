@@ -24,7 +24,7 @@ class Renderer {
     DisplayColor color = DisplayColor::BLACK;
     int borderWidth = 1;
 
-    Font *font;
+    Font *font = nullptr;
 
     // Bounds of rendering
     int _minX;
@@ -32,6 +32,8 @@ class Renderer {
     int _maxX;
     int _maxY;
     bool dirty = false;
+
+    bool pixelValue = true;
 
 public:
     Renderer(int width, int height);
@@ -41,7 +43,6 @@ public:
 
     // https://benice-equation.blogspot.com/2016/10/equation-of-rounded-rectangle.html
     void fillRoundRect(int x, int y, int width, int height, int radius);
-    void clearRoundRect(int x, int y, int width, int height, int radius);
 
     void fillCircle(int centerX, int centerY, int radius);
 
@@ -57,11 +58,12 @@ public:
     void clearAll();
     void render();
 
+    void setDrawMode();
+    void setClearMode();
+
 private:
     void updateBounds(int minX, int minY, int maxX, int maxY);
     void clearBounds();
-
-    void roundRect(int x, int y, int width, int height, int radius, bool value);
 
     BinaryMatrix &data();
 };
