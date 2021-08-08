@@ -28,20 +28,11 @@ void Renderer::fillRect(int x, int y, int width, int height) {
 }
 
 void Renderer::fillRoundRect(int x, int y, int width, int height, int radius) {
-    int a = (width / 2) - radius;
-    int b = (height / 2) - radius;
+    roundRect(x, y, width, height, radius, 1);
+}
 
-    for (int row = y; row <= y + height; row++) {
-        for (int col = x; col <= x + width; col++) {
-            int cx = max(abs(col - (x + width/2)) - a, 0);
-            int cy = max(abs(row - (y + height/2)) - b, 0);
-            if (cx * cx + cy * cy <= radius * radius) {
-                data().setPixel(col, row, 1);
-            }
-        }
-    }
-
-    updateBounds(x, y, x + width * 2, y + height * 2);
+void Renderer::clearRoundRect(int x, int y, int width, int height, int radius) {
+    roundRect(x, y, width, height, radius, 0);
 }
 
 void Renderer::fillCircle(int centerX, int centerY, int radius) {
@@ -189,6 +180,23 @@ void Renderer::clearBounds() {
     _maxX = 0;
     _maxY = 0;
 
+}
+
+void Renderer::roundRect(int x, int y, int width, int height, int radius, bool value) {
+    int a = (width / 2) - radius;
+    int b = (height / 2) - radius;
+
+    for (int row = y; row <= y + height; row++) {
+        for (int col = x; col <= x + width; col++) {
+            int cx = max(abs(col - (x + width/2)) - a, 0);
+            int cy = max(abs(row - (y + height/2)) - b, 0);
+            if (cx * cx + cy * cy <= radius * radius) {
+                data().setPixel(col, row, value);
+            }
+        }
+    }
+
+    updateBounds(x, y, x + width * 2, y + height * 2);
 }
 
 BinaryMatrix &Renderer::data() {

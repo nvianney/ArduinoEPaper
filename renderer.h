@@ -41,6 +41,7 @@ public:
 
     // https://benice-equation.blogspot.com/2016/10/equation-of-rounded-rectangle.html
     void fillRoundRect(int x, int y, int width, int height, int radius);
+    void clearRoundRect(int x, int y, int width, int height, int radius);
 
     void fillCircle(int centerX, int centerY, int radius);
 
@@ -59,6 +60,8 @@ public:
 private:
     void updateBounds(int minX, int minY, int maxX, int maxY);
     void clearBounds();
+
+    void roundRect(int x, int y, int width, int height, int radius, bool value);
 
     BinaryMatrix &data();
 };
