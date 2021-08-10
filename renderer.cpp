@@ -151,8 +151,12 @@ void Renderer::drawText(int x, int y, const char *text, TextAlignment align) {
     updateBounds(startX, y, textX, y + maxHeight);
 }
 
-void Renderer::setFont(Font &font) {
-    this->font = &font;
+void Renderer::setFont(Font *font) {
+    this->font = font;
+}
+
+Font *Renderer::getFont() const {
+    return this->font;
 }
 
 void Renderer::setColor(DisplayColor color) {

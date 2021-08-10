@@ -51,7 +51,8 @@ public:
     void drawImage(Image &image, int x, int y);
 
     void drawText(int x, int y, const char *text, TextAlignment align = TextAlignment::LEFT);
-    void setFont(Font &font);
+    void setFont(Font *font);
+    Font *getFont() const;
 
     void setColor(DisplayColor color);
 

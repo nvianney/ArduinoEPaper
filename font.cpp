@@ -47,11 +47,15 @@ int16_t Font::getKerning(char first, char second) const {
         return 0;
     }
 
-    return kerning.at( (IntPair) {first, second} );
+    return kerning.at( (IntPair) {first, second} ) * scale;
 }
 
 Pixel Font::getPixel(int x, int y) const {
     return fontImage.pixelAt(x, y);
+}
+
+uint16_t Font::getLineHeight() const {
+    return fontCommon.lineHeight * scale;
 }
 
 int Font::computeWidth(const char *text) const {

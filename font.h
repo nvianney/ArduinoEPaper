@@ -93,6 +93,8 @@ public:
     int16_t getKerning(char first, char second) const;
     Pixel getPixel(int x, int y) const;
 
+    uint16_t getLineHeight() const;
+
     // Font &operator=(const Font &other);
 
     int computeWidth(const char *text) const;
