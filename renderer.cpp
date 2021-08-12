@@ -5,6 +5,7 @@ Renderer::Renderer(int width, int height) :
     redData(BinaryMatrix(width, height)),
     blackData(BinaryMatrix(width, height)),
     display(EInkDisplay(EInkDisplay::Config(width, height))) {
+
     clearBounds();
 
     display.setup();

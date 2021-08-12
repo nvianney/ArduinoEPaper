@@ -1,7 +1,8 @@
 #include "binary_matrix.h"
 
 BinaryMatrix::BinaryMatrix(uint16_t width, uint16_t height) : width(width), height(height) {
-    buffer = new uint8_t[width * height / 8];
+    // buffer = new uint8_t[width * height / 8];
+    buffer = (uint8_t*) malloc(width * height / 8);
     clear();
 }
 
@@ -48,7 +49,7 @@ void BinaryMatrix::setRect(uint16_t x, uint16_t y, uint16_t width, uint16_t heig
 
         // Fill center
         for (int xs = startX; xs < endX; xs++) { // unit of bytes
-            buffer[ys * this->width / 8 + xs] = word;
+            buffer[loc(xs, ys)] = word;
         }
 
         // Fill partial last byte
@@ -63,5 +64,10 @@ void BinaryMatrix::clear() {
 }
 
 inline int BinaryMatrix::loc(uint16_t x, uint16_t y) const {
-    return (int) width * y / 8 + x / 8;
+    int i = (int) width * y / 8 + x / 8;
+    if (x < 0 || x >= width || y < 0 || y >= height) {
+        Serial.printf("Error: location not in screen. Location is (%d,%d), bounds is (%d,%d)\n", x, y, width, height);
+        return 0;
+    }
+    return i;
 }
