@@ -7,12 +7,13 @@ BinaryMatrix::BinaryMatrix(uint16_t width, uint16_t height) : width(width), heig
 }
 
 BinaryMatrix::~BinaryMatrix() {
-    delete buffer;
+    free(buffer);
 }
 
 void BinaryMatrix::setPixel(uint16_t x, uint16_t y, bool value) {
-    if (x < 0 || x >= width) return;
-    if (y < 0 || y >= height) return;
+    if (x < 0 || x >= width || y < 0 || y >= height) {
+        Serial.printf("Error: location not in screen. Location is (%d,%d), screen size is (%d,%d)\n", x, y, width, height);
+    };
 
     uint8_t &b = buffer[loc(x, y)];
     uint8_t offset = x % 8;
@@ -22,6 +23,11 @@ void BinaryMatrix::setPixel(uint16_t x, uint16_t y, bool value) {
 }
 
 bool BinaryMatrix::getPixel(uint16_t x, uint16_t y) const {
+    if (x < 0 || x >= width || y < 0 || y >= height) {
+        Serial.printf("Error: location not in screen. Location is (%d,%d), screen size is (%d,%d)\n", x, y, width, height);
+        return 0;
+    }
+
     uint8_t b = buffer[loc(x, y)];
     uint8_t offset = x % 8;
     uint8_t mask = 0x80 >> offset; // take only the bit w/ the pixel value
@@ -29,6 +35,11 @@ bool BinaryMatrix::getPixel(uint16_t x, uint16_t y) const {
 }
 
 void BinaryMatrix::setRect(uint16_t x, uint16_t y, uint16_t width, uint16_t height, bool value) {
+    if (x < 0 || x+width >= this->width || y < 0 || y+height >= this->height) {
+        Serial.printf("Error: rect not in bounds of screen. Rect is (%d,%d,%d,%d), screen size is (%d,%d)", x, y, width, height, this->width, this->height);
+        return;
+    }
+
     const uint8_t word = value ? 0xFF : 0x00;
 
     // To take into account partial first/last byte
@@ -49,7 +60,7 @@ void BinaryMatrix::setRect(uint16_t x, uint16_t y, uint16_t width, uint16_t heig
 
         // Fill center
         for (int xs = startX; xs < endX; xs++) { // unit of bytes
-            buffer[loc(xs, ys)] = word;
+            buffer[ys * this->width /  8 + xs] = word;
         }
 
         // Fill partial last byte
@@ -64,10 +75,5 @@ void BinaryMatrix::clear() {
 }
 
 inline int BinaryMatrix::loc(uint16_t x, uint16_t y) const {
-    int i = (int) width * y / 8 + x / 8;
-    if (x < 0 || x >= width || y < 0 || y >= height) {
-        Serial.printf("Error: location not in screen. Location is (%d,%d), bounds is (%d,%d)\n", x, y, width, height);
-        return 0;
-    }
-    return i;
+    return (int) width * y / 8 + x / 8;;
 }
