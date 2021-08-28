@@ -50,6 +50,7 @@ public:
     Image(unsigned int w, unsigned int h, unsigned int bpp, unsigned char *data);
 
     void setScale(float scale);
+    float getScale() const;
     Pixel pixelAt(int x, int y) const;
 };
 

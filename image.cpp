@@ -26,6 +26,10 @@ void Image::setScale(float scale) {
     this->scale = scale;
 }
 
+float Image::getScale() const {
+    return scale;
+}
+
 Pixel Image::pixelAt(int x, int y) const {
     int offset;
     if (scale == 1.0f) {

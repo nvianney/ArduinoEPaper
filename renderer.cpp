@@ -87,8 +87,8 @@ void Renderer::drawLine(int x1, int y1, int x2, int y2) {
 }
 
 void Renderer::drawImage(Image &image, int x, int y) {
-    for (int r = 0; r < image.height; r++) {
-        for (int c = 0; c < image.width; c++) {
+    for (int r = 0; r < image.height * image.getScale(); r++) {
+        for (int c = 0; c < image.width * image.getScale(); c++) {
             Pixel p = image.pixelAt(c, r);
             data().setPixel(x + c, y + r, (p.b <= 1) & pixelValue);
         }
