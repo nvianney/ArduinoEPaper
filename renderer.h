@@ -62,6 +62,9 @@ public:
     void setDrawMode();
     void setClearMode();
 
+    void begin();
+    void end();
+
 private:
     void updateBounds(int minX, int minY, int maxX, int maxY);
     void clearBounds();

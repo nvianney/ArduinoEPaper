@@ -9,7 +9,6 @@ Renderer::Renderer(int width, int height) :
     clearBounds();
 
     display.setup();
-
 }
 
 void Renderer::drawRect(int x, int y, int width, int height) {
@@ -178,6 +177,14 @@ void Renderer::setClearMode() {
     pixelValue = false;
 }
 
+void Renderer::begin() {
+    display.wake();
+}
+
+void Renderer::end() {
+    display.sleep();
+}
+
 void Renderer::render() {
     if (!dirty) return;
     dirty = false;
@@ -189,8 +196,8 @@ void Renderer::render() {
 
     display.writePartial(blackData.buffer, x, y, width, height, true);
     display.writePartial(redData.buffer, x, y, width, height, false);
-    // display.writeBuffer(blackData.buffer, true);
-    // display.writeBuffer(redData.buffer, false);
+    display.writeBuffer(blackData.buffer, true);
+    display.writeBuffer(redData.buffer, false);
 
     display.apply();
 

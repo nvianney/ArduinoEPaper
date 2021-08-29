@@ -36,6 +36,8 @@ public:
     void apply();
 
     void clear();
+    void sleep();
+    void wake();
 
 private:
     void writeCommand(uint8_t command);
@@ -45,6 +47,7 @@ private:
 
     void waitNotBusy();
 
+    void initialize();
     void reset();
 
 };

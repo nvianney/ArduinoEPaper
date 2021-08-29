@@ -23,64 +23,8 @@ void EInkDisplay::setup() {
     SPI.begin();
     SPI.beginTransaction(settings);
 
-    reset();
-
-    writeCommand(0x12); // reset
-    waitNotBusy();
-
-    writeCommand(0x46); // Auto write for red
-    writeData(0xF7);
-    waitNotBusy();
-
-    writeCommand(0x47); // Auto write for white
-    writeData(0xF7);
-    waitNotBusy();
-
-    writeCommand(0x0C); // Soft start setting
-    writeData(0xAE);
-    writeData(0xC7);
-    writeData(0xC3);
-    writeData(0xC0);
-    writeData(0x40);   
-
-    writeCommand(0x01); // Set MUX as 527
-    writeData(0x0F);
-    writeData(0x02);
-    writeData(0x00);
-
-    writeCommand(0x11); // Data entry
-    writeData(0x03);    // x+, y+, x+ increment
-
-    writeCommand(0x44); // Start/end pos of RAM x
-    writeData(0x00); // start at 0
-    writeData(0x00);
-    writeData(0x6F); // end at 36F_h = 879
-    writeData(0x03);
-
-    writeCommand(0x45); // Start/end pos of RAM y
-    writeData(0x00);    // start at 0
-    writeData(0x00);
-    writeData(0x0F);    // end at 20F_h = 527
-    writeData(0x02);
-
-    writeCommand(0x3C); // VBD
-    writeData(0x01);    // LUT1, for white
-
-    writeCommand(0x18); // Temperature sensor
-    writeData(0X80);    // internal
-
-    writeCommand(0x22); // BinaryMatrix update control 2
-    writeData(0XB1);	// Load Temperature and waveform setting.
-
-    writeCommand(0x20); // Master activation
-    waitNotBusy();
-
-    writeCommand(0x4E); // Initial RAM x
-    writeData(0x00);    // addr 0
-    writeData(0x00);
-    writeCommand(0x4F); // Initial RAM y
-    writeData(0x00);    // addr 0
-    writeData(0x00);
+    //reset();
+    initialize();
 }
 
 
@@ -167,6 +111,9 @@ void EInkDisplay::writePartial(unsigned char* buffer, int bufX, int bufY, int bu
 }
 
 void EInkDisplay::clear() {
+    reset();
+    initialize();
+
     writeCommand(0x4F); // reset RAM addr to 0
     writeData(0x00);
     writeData(0x00);
@@ -189,6 +136,15 @@ void EInkDisplay::clear() {
     waitNotBusy();
 }
 
+void EInkDisplay::sleep() {
+    writeCommand(0x10);
+    writeData(0x03);
+}
+
+void EInkDisplay::wake() {
+    reset();
+    initialize();
+}
 
 void EInkDisplay::writeCommand(uint8_t command) {
     digitalWrite(_config.dc, LOW);
@@ -213,9 +169,68 @@ void EInkDisplay::waitNotBusy() {
     delay(200);
 }
 
+void EInkDisplay::initialize() {
+    writeCommand(0x12); // reset
+    waitNotBusy();
+
+    writeCommand(0x46); // Auto write for red
+    writeData(0xF7);
+    waitNotBusy();
+
+    writeCommand(0x47); // Auto write for white
+    writeData(0xF7);
+    waitNotBusy();
+
+    writeCommand(0x0C); // Soft start setting
+    writeData(0xAE);
+    writeData(0xC7);
+    writeData(0xC3);
+    writeData(0xC0);
+    writeData(0x40);   
+
+    writeCommand(0x01); // Set MUX as 527
+    writeData(0x0F);
+    writeData(0x02);
+    writeData(0x00);
+
+    writeCommand(0x11); // Data entry
+    writeData(0x03);    // x+, y+, x+ increment
+
+    writeCommand(0x44); // Start/end pos of RAM x
+    writeData(0x00); // start at 0
+    writeData(0x00);
+    writeData(0x6F); // end at 36F_h = 879
+    writeData(0x03);
+
+    writeCommand(0x45); // Start/end pos of RAM y
+    writeData(0x00);    // start at 0
+    writeData(0x00);
+    writeData(0x0F);    // end at 20F_h = 527
+    writeData(0x02);
+
+    writeCommand(0x3C); // VBD
+    writeData(0x01);    // LUT1, for white
+
+    writeCommand(0x18); // Temperature sensor
+    writeData(0X80);    // internal
+
+    writeCommand(0x22); // BinaryMatrix update control 2
+    writeData(0XB1);	// Load Temperature and waveform setting.
+
+    writeCommand(0x20); // Master activation
+    waitNotBusy();
+
+    writeCommand(0x4E); // Initial RAM x
+    writeData(0x00);    // addr 0
+    writeData(0x00);
+    writeCommand(0x4F); // Initial RAM y
+    writeData(0x00);    // addr 0
+    writeData(0x00);
+}
+
 void EInkDisplay::reset() {
     digitalWrite(_config.reset, LOW);
-    delay(2);
+    delay(4);
     digitalWrite(_config.reset, HIGH);
     delay(200);
 }
