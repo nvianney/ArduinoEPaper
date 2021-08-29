@@ -33,8 +33,11 @@ public:
 
     void writeBuffer(unsigned char* buffer, bool black);
     void writePartial(unsigned char* buffer, int bufX, int bufY, int bufWidth, int bufHeight, bool black);
+    void apply();
 
     void clear();
+    void sleep();
+    void wake();
 
 private:
     void writeCommand(uint8_t command);
@@ -44,6 +47,7 @@ private:
 
     void waitNotBusy();
 
+    void initialize();
     void reset();
 
 };

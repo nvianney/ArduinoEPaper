@@ -23,8 +23,153 @@ void EInkDisplay::setup() {
     SPI.begin();
     SPI.beginTransaction(settings);
 
-    reset();
+    //reset();
+    initialize();
+}
 
+
+void EInkDisplay::writeBuffer(uint8_t* buffer, bool black) {
+    writeCommand(0x4E); // Reset RAM y-address to 0
+    writeData(0x00);
+    writeData(0x00);
+
+    writeCommand(0x4F); // Reset RAM y-address to 0
+    writeData(0x00);
+    writeData(0x00);
+
+    // Determine which RAM to write
+    if (black) {
+        writeCommand(0x24);
+    } else {
+        writeCommand(0x26);
+    }
+
+    for (uint32_t y = 0; y < _config.height; y++) { // in bits
+
+        // A byte has data of 8 pixels
+        for (uint32_t x = 0; x < _config.width / 8; x++) { // in bytes
+            uint8_t data = buffer[(_config.width * y) / 8 + x];
+
+            if (black) {
+                writeData(~data);
+            } else {
+                writeData(data);
+            }
+        }
+    }
+
+}
+
+void EInkDisplay::apply() {
+    // Apply
+    writeCommand(0x22); // display update control 2
+    writeData(0xC7);
+
+    writeCommand(0x20); // master activation
+
+    waitNotBusy();
+}
+
+void EInkDisplay::writePartial(unsigned char* buffer, int bufX, int bufY, int bufWidth, int bufHeight, bool black) {
+
+    // the address is in bits, but we're sending bytes of data at a time. we need to round down to nearest byte
+    // to properly send data
+    const int lowerByteX = bufX >> 3; // round down to nearest byte
+    const int upperByteX = (bufX + bufWidth + 8 - 1) >> 3; // basically ceil((bufX+bufWidth) / 8)
+
+    const int lowerBitX = lowerByteX << 3; // multiply by 8 for address offset (addr offset in bits)
+
+
+    for (uint32_t y = bufY; y < bufY + bufHeight; y++) { // in bits
+
+        writeCommand(0x4E); // Set RAM x-addr to start of min x
+        writeData(lowerBitX & 0xFF);
+        writeData((lowerBitX >> 8) & 0x03);
+
+        writeCommand(0x4F); // Set RAM y-addr to start of min y
+        writeData(y & 0xFF);
+        writeData((y >> 8) & 0x03);
+
+        // Determine which RAM to write
+        if (black) {
+            writeCommand(0x24);
+        } else {
+            writeCommand(0x26);
+        }
+
+        // A byte has data of 8 pixels
+        for (uint32_t x = lowerByteX; x < upperByteX; x++) { // in bytes
+            uint8_t data = buffer[(_config.width * y) / 8 + x];
+
+            if (black) {
+                writeData(~data);
+            } else {
+                writeData(data);
+            }
+        }
+    }
+}
+
+void EInkDisplay::clear() {
+    reset();
+    initialize();
+
+    writeCommand(0x4F); // reset RAM addr to 0
+    writeData(0x00);
+    writeData(0x00);
+
+    writeCommand(0x24); // write to BW RAM
+    for (uint32_t i = 0; i < _config.width * _config.height / 8; i++) {
+        writeData(0xFF); // white
+    }
+
+    writeCommand(0x26); // write to red RAM top->down
+    for (uint32_t i = 0; i < _config.width * _config.height / 8; i++) {
+        writeData(0x00); // white
+    }
+
+    writeCommand(0x22); // display update control 2
+    writeData(0xC7);
+
+    writeCommand(0x20); // display
+    delay(10);
+    waitNotBusy();
+}
+
+void EInkDisplay::sleep() {
+    writeCommand(0x10);
+    writeData(0x03);
+}
+
+void EInkDisplay::wake() {
+    reset();
+    initialize();
+}
+
+void EInkDisplay::writeCommand(uint8_t command) {
+    digitalWrite(_config.dc, LOW);
+    transferSpi(command);
+}
+
+void EInkDisplay::writeData(uint8_t data) {
+    digitalWrite(_config.dc, HIGH);
+    transferSpi(data);
+}
+
+void EInkDisplay::transferSpi(uint8_t data) {
+    digitalWrite(_config.cs, LOW);
+    SPI.transfer(data);
+    digitalWrite(_config.cs, HIGH);
+}
+
+void EInkDisplay::waitNotBusy() {
+    do {
+        delay(10); // 10 ms
+    } while (digitalRead(_config.busy));
+    delay(200);
+}
+
+void EInkDisplay::initialize() {
     writeCommand(0x12); // reset
     waitNotBusy();
 
@@ -69,7 +214,7 @@ void EInkDisplay::setup() {
     writeCommand(0x18); // Temperature sensor
     writeData(0X80);    // internal
 
-    writeCommand(0x22); // Display update control 2
+    writeCommand(0x22); // BinaryMatrix update control 2
     writeData(0XB1);	// Load Temperature and waveform setting.
 
     writeCommand(0x20); // Master activation
@@ -83,125 +228,9 @@ void EInkDisplay::setup() {
     writeData(0x00);
 }
 
-
-void EInkDisplay::writeBuffer(uint8_t* buffer, bool black) {
-    writeCommand(0x4F); // Reset RAM y-address to 0
-    writeData(0x00);
-    writeData(0x00);
-
-    // Determine which RAM to write
-    if (black) {
-        writeCommand(0x24);
-    } else {
-        writeCommand(0x26);
-    }
-
-    for (uint32_t y = 0; y < _config.height; y++) {
-
-        // A byte has data of 8 pixels
-        for (uint32_t x = 0; x < _config.width / 8; x++) {
-            uint8_t data = buffer[(_config.width * y) / 8 + x];
-
-            if (black) {
-                writeData(~data);
-            } else {
-                writeData(data);
-            }
-        }
-    }
-
-    // Apply
-    writeCommand(0x22); // display update control 2
-    writeData(0xC7);
-
-    writeCommand(0x20); // master activation
-}
-
-void EInkDisplay::writePartial(unsigned char* buffer, int bufX, int bufY, int bufWidth, int bufHeight, bool black) {
-    writeCommand(0x4E);
-    writeData(0x08);
-    writeData(0x00);
-    writeCommand(0x4F);
-    writeData(0x08);
-    writeData(0x00);
-    writeCommand(0x24);
-    writeData(0x00);
-    writeData(0x00);
-    writeData(0x00);
-    writeCommand(0x22); // display update control 2
-    writeData(0xC7);
-    writeCommand(0x20); // master activation
-
-    if (true) return;
-
-    writeCommand(0x4F); // Reset RAM y-addr to 0
-    writeData(0x00);
-    writeData(0x00);
-
-    // Determine which RAM to write
-    if (black) {
-        writeCommand(0x24);
-    } else {
-        writeCommand(0x26);
-    }
-
-    // Apply
-    writeCommand(0x22); // display update control 2
-    writeData(0xC7);
-
-    writeCommand(0x20); // master activation
-}
-
-void EInkDisplay::clear() {
-    writeCommand(0x4F); // reset RAM addr to 0
-    writeData(0x00);
-    writeData(0x00);
-
-    writeCommand(0x24); // write to BW RAM
-    for (uint32_t i = 0; i < _config.width * _config.height / 8; i++) {
-        writeData(0xFF); // white
-    }
-
-    writeCommand(0x26); // write to red RAM top->down
-    for (uint32_t i = 0; i < _config.width * _config.height / 8; i++) {
-        writeData(0x00); // white
-    }
-
-    writeCommand(0x22); // display update control 2
-    writeData(0xC7);
-
-    writeCommand(0x20); // display
-    delay(10);
-    waitNotBusy();
-}
-
-
-void EInkDisplay::writeCommand(uint8_t command) {
-    digitalWrite(_config.dc, LOW);
-    transferSpi(command);
-}
-
-void EInkDisplay::writeData(uint8_t data) {
-    digitalWrite(_config.dc, HIGH);
-    transferSpi(data);
-}
-
-void EInkDisplay::transferSpi(uint8_t data) {
-    digitalWrite(_config.cs, LOW);
-    SPI.transfer(data);
-    digitalWrite(_config.cs, HIGH);
-}
-
-void EInkDisplay::waitNotBusy() {
-    do {
-        delay(10); // 10 ms
-    } while (digitalRead(_config.busy));
-    delay(200);
-}
-
 void EInkDisplay::reset() {
     digitalWrite(_config.reset, LOW);
-    delay(2);
+    delay(4);
     digitalWrite(_config.reset, HIGH);
     delay(200);
 }
