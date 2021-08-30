@@ -166,7 +166,8 @@ void Renderer::setColor(DisplayColor color) {
 void Renderer::clearAll() {
     blackData.clear();
     redData.clear();
-    display.clear();
+    dirty = true;
+    // display.clear();
 }
 
 void Renderer::setDrawMode() {
@@ -189,13 +190,14 @@ void Renderer::render() {
     if (!dirty) return;
     dirty = false;
 
+    // TODO: clamp value within screen
     int x = _minX;
     int y = _minY;
     int width = _maxX - _minX;
     int height = _maxY - _minY;
 
-    display.writePartial(blackData.buffer, x, y, width, height, true);
-    display.writePartial(redData.buffer, x, y, width, height, false);
+    // display.writePartial(blackData.buffer, x, y, width, height, true);
+    // display.writePartial(redData.buffer, x, y, width, height, false);
     display.writeBuffer(blackData.buffer, true);
     display.writeBuffer(redData.buffer, false);
 
