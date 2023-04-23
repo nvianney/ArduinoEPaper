@@ -25,6 +25,7 @@ void EInkDisplay::setup() {
 
     //reset();
     initialize();
+    clear();
 }
 
 
